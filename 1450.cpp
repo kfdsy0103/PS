@@ -1,40 +1,44 @@
-// meet in the middle : 완탐인데 범위가 클 경우 절반으로 나누고 이진탐색
 #include <bits/stdc++.h>
 using namespace std;
 
 const int dy[4] = { -1,1,0,0 };
 const int dx[4] = { 0,0,-1,1 };
-long long n, c, ret;
-int a[31];
-vector<int> v1, v2;
 
-void dfs(int here, int to, vector<int>& v, int sum) {
-    if (sum > c) return;
-    if (here > to) {
-        v.push_back(sum);
-        return;
-    }
+struct info {
+    int a;
+    int b;
+    int c;
+    int d;
+};
+int n, k;
+int a, b, c, d;
+int dp[101][100001];
+vector<info> v;
 
-    dfs(here + 1, to, v, sum + a[here]);
-    dfs(here + 1, to, v, sum);
-    return;
+int go(int here, int time) {
+    if (here == n) return 0;
+
+    int& ret = dp[here][time];
+    if (~ret) return ret;
+
+    if (time - v[here].a >= 0) ret = max(ret, go(here + 1, time - v[here].a) + v[here].b);
+    if (time - v[here].c >= 0) ret = max(ret, go(here + 1, time - v[here].c) + v[here].d);
+    return ret;
 }
 
 int main() {
-    cin >> n >> c;
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+    cin >> n >> k;
+    memset(dp, -1, sizeof(dp));
 
     for (int i = 0; i < n; i++) {
-        cin >> a[i];
+        cin >> a >> b >> c >> d;
+        v.push_back({ a, b, c, d });
     }
 
-    dfs(0, n / 2, v1, 0);
-    dfs(n / 2 + 1, n - 1, v2, 0);
-    sort(v1.begin(), v1.end());
-    sort(v2.begin(), v2.end());
-    for (int b : v1) {
-        if (c - b >= 0)ret += ((int)(upper_bound(v2.begin(), v2.end(), c - b) - v2.begin()));
-    }
-  
-    cout << ret;
+    cout << go(0, k);
+
     return 0;
 }
